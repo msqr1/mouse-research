@@ -18,20 +18,20 @@ for i in [apex, pp, smv, longAxis]:
   i.merge_range("C1:H1", "Peak")
   i.merge_range("I1:N1", "TTP")
   i.merge_range("O1:T1", "ES")
-  i.merge_range("F2:H2", "Circumferential")
-  i.merge_range("L2:N2", "Circumferential")
-  i.merge_range("R2:T2", "Circumferential")
+  i.merge_range("C2:E2", "Radial")
+  i.merge_range("I2:K2", "Radial")
+  i.merge_range("O2:Q2", "Radial")
   for j in ["C3", "F3", "I3", "L3", "O3", "R3"]:
     i.write_row(j, ["Endo", "Myo", "Epi"])
 
 for i in [apex, pp, smv]:
-  i.merge_range("C2:E2", "Radial")
-  i.merge_range("I2:K2", "Radial")
-  i.merge_range("O2:Q2", "Radial")
+  i.merge_range("F2:H2", "Circumferential")
+  i.merge_range("L2:N2", "Circumferential")
+  i.merge_range("R2:T2", "Circumferential")
 
-longAxis.merge_range("C2:E2", "Longitudinal")
-longAxis.merge_range("I2:K2", "Longitudinal")
-longAxis.merge_range("O2:Q2", "Longitudinal")
+longAxis.merge_range("F2:H2", "Longitudinal")
+longAxis.merge_range("L2:N2", "Longitudinal")
+longAxis.merge_range("R2:T2", "Longitudinal")
 
 for i in range(0, len(animalDirs)):
   apex.merge_range(f"A{4 + 4 * i}:A{7 + 4 * i}", animalIDs[i])
