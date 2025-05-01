@@ -11,7 +11,7 @@ pp = book.add_worksheet("PP")
 smv = book.add_worksheet("SMV")
 longAxis = book.add_worksheet("Long Axis")
 for i in [apex, pp, smv]:
-  i.write_row("A1", ["ID", "EndoGCS", "EndoGLS"])
+  i.write_row("A1", ["ID", "EndoGCS", "EndoROT"])
 
 longAxis.write_row("A1", ["ID", "EndoGCS*", "EndoGLS"])
 
