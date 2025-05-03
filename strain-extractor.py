@@ -14,7 +14,6 @@ longAxis = book.add_worksheet("Long Axis")
 # For normal Ws
 for i in [apex, pp, smv, longAxis]:
   i.write_row("A1", ["ID", "Cell type"])
-  i.set_column(1, 1, 19)
   i.merge_range("C1:H1", "TTP")
   i.merge_range("I1:N1", "Peak")
   i.merge_range("O1:T1", "ES")
@@ -292,4 +291,7 @@ for i in range(0, len(animalDirs)):
             longAxis.write(f"N{4 + 7 * i + j}", cells[2]["Data"]["#text"])
             longAxis.write(f"T{4 + 7 * i + j}", cells[3]["Data"]["#text"])
 
+for i in [apex, pp, smv, longAxis]:
+  i.autofit()
+  
 book.close()
