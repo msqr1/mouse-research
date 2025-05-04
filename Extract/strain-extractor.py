@@ -40,12 +40,8 @@ for input in [
   Input(pp, ["07-mid anterior", "12-mid anterolateral", "11-mid inferolateral", "10-mid inferior", "09-mid inferoseptal", "08-mid anteroseptal"], "PP*/*TTP(pm)"),
   Input(smv, ["01-basal anterior", "06-basal anterolateral", "05-basal inferolateral", "04-basal inferior", "03-basal inferoseptal", "02-basal anteroseptal"], "sMV*/*TTP(mv)")
 ]:
-  if input.cellCnt == 4:
-    maxRowLen = 20
-    dataStart = 14
-  else:
-    maxRowLen = 24
-    dataStart = 16
+  maxRowLen = 12 + input.cellCnt * 2
+  skipRadial = 10 + input.cellCnt
   for i, xml, id  in getStrainIterables(input.globExpr, input.cellCnt):
     worksheets = None
     with open(xml) as f:
@@ -57,7 +53,7 @@ for input in [
       name = ws["@ss:Name"]
       if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
         rows = ws["Table"]["Row"]
-        start = dataStart if len(rows) == maxRowLen else 7
+        start = skipRadial if len(rows) == maxRowLen else 7
         for j in range(input.cellCnt):
           cells = rows[start + j]["Cell"]
           data[j].append(cells[1]["Data"]["#text"])
