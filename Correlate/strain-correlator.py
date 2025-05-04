@@ -36,7 +36,7 @@ with open(sys.argv[1]) as mv, open(sys.argv[2]) as strain:
 
   # i is for mv
   # j is for strain
-  # k is for the output list
+  # k is for the output sheet
   for i,j,k in zip(range(1, 22, 4), range(2, tpCnt * 6, tpCnt), range(2, 20, 3), strict=True):
     aet = getMVData(mvData, i, 4)
     ivct = getMVData(mvData, i + 1, 4)

@@ -4,294 +4,103 @@ weekDir = sys.argv[1]
 output = sys.argv[2]
 animalDirs = glob.glob(f"{weekDir}/*")
 animalIDs = [i[len(weekDir) + 1:] for i in animalDirs]
-book = xlsxwriter.Workbook(output)
+animalCnt = len(animalDirs)
 
+def getStrainIterables(globExpr, cellCnt):
+  XMLs = []
+  IDs = []
+  for i in range(animalCnt):
+    a = glob.glob(f"{animalDirs[i]}/{globExpr}.xml")
+    if len(a) > 0:
+      XMLs.append(a[0])
+      IDs.append(animalIDs[i])
+  return zip(range(2, len(IDs) * cellCnt, cellCnt), XMLs, IDs, strict=True)
+
+book = xlsxwriter.Workbook(output)
 apex = book.add_worksheet("Apex")
 pp = book.add_worksheet("PP")
 smv = book.add_worksheet("SMV")
-longAxis = book.add_worksheet("Long Axis")
-
-# For normal Ws
-for i in [apex, pp, smv, longAxis]:
-  i.write_row("A1", ["ID", "Cell type"])
-  i.merge_range("C1:H1", "TTP")
-  i.merge_range("I1:N1", "Peak")
-  i.merge_range("O1:T1", "ES")
-  i.merge_range("C2:E2", "Radial")
-  i.merge_range("I2:K2", "Radial")
-  i.merge_range("O2:Q2", "Radial")
-  for j in ["C3", "F3", "I3", "L3", "O3", "R3"]:
-    i.write_row(j, ["Endo", "Myo", "Epi"])
 
 for i in [apex, pp, smv]:
-  i.merge_range("F2:H2", "Circumferential")
-  i.merge_range("L2:N2", "Circumferential")
-  i.merge_range("R2:T2", "Circumferential")
+  i.write_row("A1", ["ID", "Cell type"])
+  i.merge_range("C1:E1", "Endo")
+  i.merge_range("F1:H1", "Myo")
+  i.merge_range("I1:K1", "Epi")
+  i.write_row("C2", ["TTP", "Peak", "ES"] * 3)
 
-longAxis.merge_range("F2:H2", "Longitudinal")
-longAxis.merge_range("L2:N2", "Longitudinal")
-longAxis.merge_range("R2:T2", "Longitudinal")
-
-for i in range(0, len(animalDirs)):
-  apex.merge_range(f"A{4 + 4 * i}:A{7 + 4 * i}", animalIDs[i])
-  apex.write_column(f"B{4 + 4 * i}:B{7 + 4 * i}", ["13-apical anterior", "16-apical lateral", "15-apical inferior", "14-apical septal"])
-  a = glob.glob(f"{animalDirs[i]}/Apex*/*TTP(apex).xml")
-  if(len(a)) > 0:
-    with open(glob.glob(f"{animalDirs[i]}/Apex*/*TTP(apex).xml")[0]) as f: 
-      for ws in xmltodict.parse(f.read())["Workbook"]["Worksheet"]:
-        name = ws["@ss:Name"]
-        rows = ws["Table"]["Row"]
-        if name == "Strain-Endo TTP":
-          if(len(rows) == 20):
-            for j in range(0, 4):
-              cells = rows[7 + j]["Cell"]
-              apex.write(f"C{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"I{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"O{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-            
-            for j in range(0, 4):
-              cells = rows[14 + j]["Cell"]
-              apex.write(f"F{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"L{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"R{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            for j in range(0, 4):
-              cells = rows[7 + j]["Cell"]
-              apex.write(f"F{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"L{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"R{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-        elif name == "Strain-Myo TTP":
-          if(len(rows) == 20):
-            for j in range(0, 4):
-              cells = rows[7 + j]["Cell"]
-              apex.write(f"D{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"J{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"P{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-            for j in range(0, 4):
-              cells = rows[14 + j]["Cell"]
-              apex.write(f"G{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"M{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"S{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            for j in range(0, 4):
-              cells = rows[7 + j]["Cell"]
-              apex.write(f"G{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"M{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"S{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-        elif name == "Strain-Epi TTP":
-          if(len(rows) == 20):
-            for j in range(0, 4):
-              cells = rows[7 + j]["Cell"]
-              apex.write(f"E{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"K{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"Q{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-            for j in range(0, 4):
-              cells = rows[14 + j]["Cell"]
-              apex.write(f"H{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-              apex.write(f"N{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-              apex.write(f"T{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            cells = rows[7 + j]["Cell"]
-            apex.write(f"H{4 + 4 * i + j}", cells[1]["Data"]["#text"])
-            apex.write(f"N{4 + 4 * i + j}", cells[2]["Data"]["#text"])
-            apex.write(f"T{4 + 4 * i + j}", cells[3]["Data"]["#text"])
-
-  pp.merge_range(f"A{4 + 6 * i}:A{9 + 6 * i}", animalIDs[i])
-  pp.write_column(f"B{4 + 6 * i}:B{7 + 6 * i}", ["07-mid anterior", "12-mid anterolateral", "11-mid inferolateral", "10-mid inferior", "09-mid inferoseptal", "08-mid anteroseptal"])
-  a = glob.glob(f"{animalDirs[i]}/PP*/*TTP(pm).xml")
-  if(len(a) > 0):
-    with open(a[0]) as f:
-      for ws in xmltodict.parse(f.read())["Workbook"]["Worksheet"]:
-        name = ws["@ss:Name"]
-        rows = ws["Table"]["Row"]
-        if name == "Strain-Endo TTP":
-          if(len(rows) == 24):
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"C{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"I{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"O{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-
-            for j in range(0, 6):
-              cells = rows[16 + j]["Cell"]
-              pp.write(f"F{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"L{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"R{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"F{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"L{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"R{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-
-        elif name == "Strain-Myo TTP":
-          if(len(rows) == 24):
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"D{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"J{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"P{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-            for j in range(0, 6):
-              cells = rows[16 + j]["Cell"]
-              pp.write(f"G{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"M{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"S{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"G{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"M{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"S{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-        elif name == "Strain-Epi TTP":
-          if(len(rows) == 24):
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"E{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"K{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"Q{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-      
-            for j in range(0, 6):
-              cells = rows[16 + j]["Cell"]
-              pp.write(f"H{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"N{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"T{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-          else:
-            for j in range(0, 6):
-              cells = rows[7 + j]["Cell"]
-              pp.write(f"H{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-              pp.write(f"N{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-              pp.write(f"T{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-
-  smv.merge_range(f"A{4 + 6 * i}:A{9 + 6 * i}", animalIDs[i])
-  smv.write_column(f"B{4 + 6 * i}:B{7 + 6 * i}", ["01-basal anterior", "06-basal anterolateral", "05-basal inferolateral", "04-basal inferior", "03-basal inferoseptal", "02-basal anteroseptal"])
-  with open(glob.glob(f"{animalDirs[i]}/sMV*/*TTP(mv).xml")[0]) as f:
-    for ws in xmltodict.parse(f.read())["Workbook"]["Worksheet"]:
-      name = ws["@ss:Name"]
+cellTp = ["13-apical anterior", "16-apical lateral", "15-apical inferior", "14-apical septal"]
+cellCnt = len(cellTp)
+for i, xml, id  in getStrainIterables("Apex*/*TTP(apex)", cellCnt):
+  worksheets = None
+  with open(xml) as f:
+    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
+  data = []
+  for j in range(cellCnt):
+    data.append([])
+  for ws in worksheets:
+    name = ws["@ss:Name"]
+    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
       rows = ws["Table"]["Row"]
-      if name == "Strain-Endo TTP":
-        if(len(rows) == 24):
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"C{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"I{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"O{4 + 6 * i + j}", cells[3]["Data"]["#text"])
+      start = 14 if len(rows) == 20 else 7
+      for j in range(cellCnt):
+        cells = rows[start + j]["Cell"]
+        data[j].append(cells[1]["Data"]["#text"])
+        data[j].append(cells[2]["Data"]["#text"])
+        data[j].append(cells[3]["Data"]["#text"])
+  apex.merge_range(i, 0, i + cellCnt - 1, 0, id)
+  apex.write_column(i, 1, cellTp)
+  for j in range(cellCnt):
+    apex.write_row(i + j, 2, data[j])
 
-          for j in range(0, 6):
-            cells = rows[16 + j]["Cell"]
-            smv.write(f"F{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"L{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"R{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"F{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"L{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"R{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-
-      elif name == "Strain-Myo TTP":
-        if(len(rows) == 24):
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"D{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"J{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"P{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-          for j in range(0, 6):
-            cells = rows[16 + j]["Cell"]
-            smv.write(f"G{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"M{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"S{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"G{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"M{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"S{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-      elif name == "Strain-Epi TTP":
-        if(len(rows) == 24):
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"E{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"K{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"Q{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-    
-          for j in range(0, 6):
-            cells = rows[16 + j]["Cell"]
-            smv.write(f"H{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"N{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"T{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 6):
-            cells = rows[7 + j]["Cell"]
-            smv.write(f"H{4 + 6 * i + j}", cells[1]["Data"]["#text"])
-            smv.write(f"N{4 + 6 * i + j}", cells[2]["Data"]["#text"])
-            smv.write(f"T{4 + 6 * i + j}", cells[3]["Data"]["#text"])
-  
-  longAxis.merge_range(f"A{4 + 7 * i}:A{10 + 7 * i}", animalIDs[i])
-  longAxis.write_column(f"B{4 + 7 * i}:B{7 + 7 * i}", ["05-basal inferolateral", "11-mid inferolateral", "16-apical lateral", "17-apex", "14-apical septal", "08-mid anteroseptal", "02-basal anteroseptal"])
-  with open(glob.glob(f"{animalDirs[i]}/Long Axis*/*TTP(pslax).xml")[0]) as f:
-    for ws in xmltodict.parse(f.read())["Workbook"]["Worksheet"]:
-      name = ws["@ss:Name"]
+cellTp = ["07-mid anterior", "12-mid anterolateral", "11-mid inferolateral", "10-mid inferior", "09-mid inferoseptal", "08-mid anteroseptal"]
+cellCnt = len(cellTp)
+for i, xml, id  in getStrainIterables("PP*/*TTP(pm)", cellCnt):
+  worksheets = None
+  with open(xml) as f:
+    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
+  data = []
+  for j in range(cellCnt):
+    data.append([])
+  for ws in worksheets:
+    name = ws["@ss:Name"]
+    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
       rows = ws["Table"]["Row"]
-      if name == "Strain-Endo TTP":
-        if(len(rows) == 26):
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"C{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"I{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"O{4 + 7 * i + j}", cells[3]["Data"]["#text"])
+      start = 16 if len(rows) == 24 else 7
+      for j in range(cellCnt):
+        cells = rows[start + j]["Cell"]
+        data[j].append(cells[1]["Data"]["#text"])
+        data[j].append(cells[2]["Data"]["#text"])
+        data[j].append(cells[3]["Data"]["#text"])
+  pp.merge_range(i, 0, i + cellCnt - 1, 0, id)
+  pp.write_column(i, 1, cellTp)
+  for j in range(cellCnt):
+    pp.write_row(i + j, 2, data[j])
 
-          for j in range(0, 7):
-            cells = rows[17 + j]["Cell"]
-            longAxis.write(f"F{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"L{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"R{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"F{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"L{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"R{4 + 7 * i + j}", cells[3]["Data"]["#text"])
+cellTp = ["01-basal anterior", "06-basal anterolateral", "05-basal inferolateral", "04-basal inferior", "03-basal inferoseptal", "02-basal anteroseptal"]
+cellCnt = len(cellTp)
+for i, xml, id  in getStrainIterables("sMV*/*TTP(mv)", cellCnt):
+  worksheets = None
+  with open(xml) as f:
+    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
+  data = []
+  for j in range(cellCnt):
+    data.append([])
+  for ws in worksheets:
+    name = ws["@ss:Name"]
+    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
+      rows = ws["Table"]["Row"]
+      start = 16 if len(rows) == 24 else 7
+      for j in range(cellCnt):
+        cells = rows[start + j]["Cell"]
+        data[j].append(cells[1]["Data"]["#text"])
+        data[j].append(cells[2]["Data"]["#text"])
+        data[j].append(cells[3]["Data"]["#text"])
+  smv.merge_range(i, 0, i + cellCnt - 1, 0, id)
+  smv.write_column(i, 1, cellTp)
+  for j in range(cellCnt):
+    smv.write_row(i + j, 2, data[j])
 
-      elif name == "Strain-Myo TTP":
-        if(len(rows) == 26):
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"D{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"J{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"P{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-          for j in range(0, 7):
-            cells = rows[17 + j]["Cell"]
-            longAxis.write(f"G{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"M{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"S{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"G{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"M{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"S{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-
-      elif name == "Strain-Epi TTP":
-        if(len(rows) == 26):
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"E{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"K{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"Q{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-    
-          for j in range(0, 7):
-            cells = rows[17 + j]["Cell"]
-            longAxis.write(f"H{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"N{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"T{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-        else:
-          for j in range(0, 7):
-            cells = rows[7 + j]["Cell"]
-            longAxis.write(f"H{4 + 7 * i + j}", cells[1]["Data"]["#text"])
-            longAxis.write(f"N{4 + 7 * i + j}", cells[2]["Data"]["#text"])
-            longAxis.write(f"T{4 + 7 * i + j}", cells[3]["Data"]["#text"])
-
-for i in [apex, pp, smv, longAxis]:
+for i in [apex, pp, smv]:
   i.autofit()
   
 book.close()
