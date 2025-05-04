@@ -60,7 +60,6 @@ for input in [
         start = dataStart if len(rows) == maxRowLen else 7
         for j in range(input.cellCnt):
           cells = rows[start + j]["Cell"]
-          print(cells)
           data[j].append(cells[1]["Data"]["#text"])
           data[j].append(cells[2]["Data"]["#text"])
           data[j].append(cells[3]["Data"]["#text"])
