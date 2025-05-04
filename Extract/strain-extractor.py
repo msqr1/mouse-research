@@ -28,79 +28,48 @@ for i in [apex, pp, smv]:
   i.merge_range("I1:K1", "Epi")
   i.write_row("C2", ["TTP", "Peak", "ES"] * 3)
 
-cellTp = ["13-apical anterior", "16-apical lateral", "15-apical inferior", "14-apical septal"]
-cellCnt = len(cellTp)
-for i, xml, id  in getStrainIterables("Apex*/*TTP(apex)", cellCnt):
-  worksheets = None
-  with open(xml) as f:
-    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
-  data = []
-  for j in range(cellCnt):
-    data.append([])
-  for ws in worksheets:
-    name = ws["@ss:Name"]
-    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
-      rows = ws["Table"]["Row"]
-      start = 14 if len(rows) == 20 else 7
-      for j in range(cellCnt):
-        cells = rows[start + j]["Cell"]
-        data[j].append(cells[1]["Data"]["#text"])
-        data[j].append(cells[2]["Data"]["#text"])
-        data[j].append(cells[3]["Data"]["#text"])
-  apex.merge_range(i, 0, i + cellCnt - 1, 0, id)
-  apex.write_column(i, 1, cellTp)
-  for j in range(cellCnt):
-    apex.write_row(i + j, 2, data[j])
+class Input():
+  def __init__(self, sheet, cellTp, globExpr):
+    self.sheet = sheet
+    self.cellTp = cellTp
+    self.cellCnt = len(cellTp)
+    self.globExpr = globExpr
 
-cellTp = ["07-mid anterior", "12-mid anterolateral", "11-mid inferolateral", "10-mid inferior", "09-mid inferoseptal", "08-mid anteroseptal"]
-cellCnt = len(cellTp)
-for i, xml, id  in getStrainIterables("PP*/*TTP(pm)", cellCnt):
-  worksheets = None
-  with open(xml) as f:
-    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
-  data = []
-  for j in range(cellCnt):
-    data.append([])
-  for ws in worksheets:
-    name = ws["@ss:Name"]
-    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
-      rows = ws["Table"]["Row"]
-      start = 16 if len(rows) == 24 else 7
-      for j in range(cellCnt):
-        cells = rows[start + j]["Cell"]
-        data[j].append(cells[1]["Data"]["#text"])
-        data[j].append(cells[2]["Data"]["#text"])
-        data[j].append(cells[3]["Data"]["#text"])
-  pp.merge_range(i, 0, i + cellCnt - 1, 0, id)
-  pp.write_column(i, 1, cellTp)
-  for j in range(cellCnt):
-    pp.write_row(i + j, 2, data[j])
-
-cellTp = ["01-basal anterior", "06-basal anterolateral", "05-basal inferolateral", "04-basal inferior", "03-basal inferoseptal", "02-basal anteroseptal"]
-cellCnt = len(cellTp)
-for i, xml, id  in getStrainIterables("sMV*/*TTP(mv)", cellCnt):
-  worksheets = None
-  with open(xml) as f:
-    worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
-  data = []
-  for j in range(cellCnt):
-    data.append([])
-  for ws in worksheets:
-    name = ws["@ss:Name"]
-    if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
-      rows = ws["Table"]["Row"]
-      start = 16 if len(rows) == 24 else 7
-      for j in range(cellCnt):
-        cells = rows[start + j]["Cell"]
-        data[j].append(cells[1]["Data"]["#text"])
-        data[j].append(cells[2]["Data"]["#text"])
-        data[j].append(cells[3]["Data"]["#text"])
-  smv.merge_range(i, 0, i + cellCnt - 1, 0, id)
-  smv.write_column(i, 1, cellTp)
-  for j in range(cellCnt):
-    smv.write_row(i + j, 2, data[j])
+for input in [
+  Input(apex, ["13-apical anterior", "16-apical lateral", "15-apical inferior", "14-apical septal"], "Apex*/*TTP(apex)"),
+  Input(pp, ["07-mid anterior", "12-mid anterolateral", "11-mid inferolateral", "10-mid inferior", "09-mid inferoseptal", "08-mid anteroseptal"], "PP*/*TTP(pm)"),
+  Input(smv, ["01-basal anterior", "06-basal anterolateral", "05-basal inferolateral", "04-basal inferior", "03-basal inferoseptal", "02-basal anteroseptal"], "sMV*/*TTP(mv)")
+]:
+  if input.cellCnt == 4:
+    maxRowLen = 20
+    dataStart = 14
+  else:
+    maxRowLen = 24
+    dataStart = 16
+  for i, xml, id  in getStrainIterables(input.globExpr, input.cellCnt):
+    worksheets = None
+    with open(xml) as f:
+      worksheets = xmltodict.parse(f.read())["Workbook"]["Worksheet"]
+    data = []
+    for j in range(input.cellCnt):
+      data.append([])
+    for ws in worksheets:
+      name = ws["@ss:Name"]
+      if name == "Strain-Endo TTP" or name == "Strain-Myo TTP" or name == "Strain-Epi TTP":
+        rows = ws["Table"]["Row"]
+        start = dataStart if len(rows) == maxRowLen else 7
+        for j in range(input.cellCnt):
+          cells = rows[start + j]["Cell"]
+          print(cells)
+          data[j].append(cells[1]["Data"]["#text"])
+          data[j].append(cells[2]["Data"]["#text"])
+          data[j].append(cells[3]["Data"]["#text"])
+    input.sheet.merge_range(i, 0, i + input.cellCnt - 1, 0, id)
+    input.sheet.write_column(i, 1, input.cellTp)
+    for j in range(input.cellCnt):
+      input.sheet.write_row(i + j, 2, data[j])
 
 for i in [apex, pp, smv]:
   i.autofit()
-  
+
 book.close()
