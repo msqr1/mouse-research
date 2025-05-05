@@ -12,7 +12,7 @@ def getLinregressData(data, top, left):
 # Output book
 book = xlsxwriter.Workbook(sys.argv[2])
 sheet = book.add_worksheet()
-sheet.write_row("A1", ["ID", "Measurement", "Slope", "P-value"])
+sheet.write_row("A1", ["ID", "Measurement", "Slope", "P-value", "R^2-value"])
 with open(sys.argv[1]) as f:
   data = []
   reader = csv.reader(f)
@@ -23,6 +23,6 @@ with open(sys.argv[1]) as f:
     sheet.merge_range(i, 0, i + tpCnt - 1, 0, data[i][0])
     for j in range(i, i + tpCnt):
       res = scipy.stats.linregress(*getLinregressData(data, i, 4))
-      sheet.write_row(j, 1, [data[j][1], res.slope, res.pvalue])
+      sheet.write_row(j, 1, [data[j][1], res.slope, res.pvalue, res.rvalue ** 2])
 sheet.autofit()
 book.close()

@@ -30,7 +30,7 @@ smv = book.add_worksheet("SMV")
 longAxis = book.add_worksheet("Long Axis")
 
 for i in [apex, pp, smv, longAxis]:
-  i.write_row("A1", ["ID", "Cell type"])
+  i.write_row("A2", ["ID", "Cell type"])
   i.merge_range("C1:E1", "Endo")
   i.merge_range("F1:H1", "Myo")
   i.merge_range("I1:K1", "Epi")
