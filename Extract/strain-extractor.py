@@ -1,7 +1,11 @@
 import sys, glob, xlsxwriter, xmltodict
 
+# Week directory (raw data)
 weekDir = sys.argv[1]
-output = sys.argv[2]
+
+# Output sheet
+out = sys.argv[2]
+
 animalDirs = glob.glob(f"{weekDir}/*")
 animalIDs = [i[len(weekDir) + 1:] for i in animalDirs]
 animalCnt = len(animalDirs)
@@ -15,7 +19,7 @@ def getStrainIterables(globExpr, cellCnt):
     XMLs.append(a[0] if len(a) > 0 else '')
   return zip(range(2, len(IDs) * cellCnt, cellCnt), XMLs, IDs, strict=True)
 
-book = xlsxwriter.Workbook(output)
+book = xlsxwriter.Workbook(out)
 
 class Input():
   def __init__(self, sheet, cellTp, globExpr):

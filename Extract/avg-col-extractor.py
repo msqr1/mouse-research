@@ -1,5 +1,14 @@
 import openpyxl, xlsxwriter, sys, glob
 
+# Week directory (week data from strain-extractor)
+weekDir = sys.argv[1]
+
+# Column to get, 1-indexed
+col = int(sys.argv[2])
+
+# Output sheet
+out = sys.argv[3]
+
 def getWeekAvg(sheets, row, col, cnt):
   y = [] # Average cell values
   for sheet in sheets:
@@ -14,11 +23,11 @@ def getWeekAvg(sheets, row, col, cnt):
   return y
 
 # Sort files from weeks, and assume that is the correct time order
-dataFiles = glob.glob(f"{sys.argv[1]}/*.xlsx")
+dataFiles = glob.glob(f"{weekDir}/*.xlsx")
 dataFiles.sort()
 weekLabels = [j for j in range(len(dataFiles))]
 wbs = [openpyxl.load_workbook(i, read_only=True) for i in dataFiles]
-book = xlsxwriter.Workbook(sys.argv[2])
+book = xlsxwriter.Workbook(out)
 apex = book.add_worksheet("Apex")
 apexs = [i["Apex"] for i in wbs]
 pp = book.add_worksheet("PP")
@@ -34,7 +43,7 @@ for i in zip([apex, pp, smv, longAxis], [apexs, pps, smvs, longAxes], [4, 6, 6, 
   # j is for output sheet
   # k is for strain
   for j,k in zip(range(1, 7), range(3, 4 + 5 * i[2], i[2]), strict=True):
-    i[0].write_row(j, 0, [i[1][0].cell(k, 1).value, *getWeekAvg(i[1], k, 4, i[2])])
+    i[0].write_row(j, 0, [i[1][0].cell(k, 1).value, *getWeekAvg(i[1], k, col, i[2])])
   i[0].autofit()
 
 book.close()

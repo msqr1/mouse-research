@@ -1,10 +1,14 @@
 import sys, glob, xlsxwriter
 
+# Week directory (raw data)
 weekDir = sys.argv[1]
-output = sys.argv[2]
+
+# Output sheet
+out = sys.argv[2]
+
 animalDirs = glob.glob(f"{weekDir}/*")
 animalIDs = [i[len(weekDir) + 1:] for i in animalDirs]
-book = xlsxwriter.Workbook(output)
+book = xlsxwriter.Workbook(out)
 
 apex = book.add_worksheet("Apex")
 pp = book.add_worksheet("PP")

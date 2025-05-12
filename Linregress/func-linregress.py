@@ -1,5 +1,11 @@
 import scipy, csv, sys, xlsxwriter
 
+# MV sheet, converted to CSV
+strainFile = sys.argv[1]
+
+# Output sheet
+out = sys.argv[2]
+
 def getLinregressData(data, top, left):
   x = [] # Week, 0 = baseline
   y = [] # Average cell values
@@ -9,8 +15,7 @@ def getLinregressData(data, top, left):
       y.append(float(data[top][left + i]))
   return x,y
 
-# Output book
-book = xlsxwriter.Workbook(sys.argv[2])
+book = xlsxwriter.Workbook(out)
 sheet = book.add_worksheet()
 sheet.write_row("A1", ["ID", "Measurement", "Slope", "P-value", "R^2-value"])
 with open(sys.argv[1]) as f:

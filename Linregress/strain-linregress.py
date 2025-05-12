@@ -1,5 +1,11 @@
 import scipy, openpyxl, xlsxwriter, sys, glob
 
+# Strain sheet from strain-extractor, converted to CSV
+strainFile = sys.argv[1]
+
+# Output sheet
+out = sys.argv[2]
+
 def getLinregressData(sheets, row, col, cnt):
   x = [] # Week, 0 = baseline
   y = [] # Average cell values
@@ -14,10 +20,10 @@ def getLinregressData(sheets, row, col, cnt):
   return x,y
 
 # Sort files from weeks, and assume that is the correct time order
-dataFiles = glob.glob(f"{sys.argv[1]}/*.xlsx")
+dataFiles = glob.glob(f"{strainFile}/*.xlsx")
 dataFiles.sort()
 wbs = [openpyxl.load_workbook(i, read_only=True) for i in dataFiles]
-book = xlsxwriter.Workbook(sys.argv[2])
+book = xlsxwriter.Workbook(out)
 apex = book.add_worksheet("Apex")
 apexs = [i["Apex"] for i in wbs]
 pp = book.add_worksheet("PP")
